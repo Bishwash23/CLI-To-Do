@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 TASKS_FILE = "tasks.json"
 
@@ -17,8 +18,12 @@ def main():
         match choice:
             case 1:
                 title = input("Task: ")
-                add_tasks(title)
-                view_tasks()
+                due_date = input("Due Date(Y-m-d): ")
+                if date_validation(due_date):
+                    add_tasks(title, due_date)
+                    view_tasks()
+                else:
+                    print("Invalid Due Date")
             case 2:
                 view_tasks()
             case 3:
@@ -47,12 +52,13 @@ def save(tasks):
     with open(TASKS_FILE, "w") as file:
         json.dump(tasks, file, indent=4)
 
-def add_tasks(title):
+def add_tasks(title, date):
     tasks = load_tasks()
     id = len(tasks) + 1
     task = {
         "id": id,
         "title": title,
+        "due_date": date,
         "done": False
     }
     tasks.append(task)
@@ -67,7 +73,7 @@ def view_tasks():
 
     for task in tasks:
         status = "✔" if task["done"] else "✘"
-        print(f"{task['id']}. {task['title']} [{status}]")
+        print(f"\n{task['id']}. {task['title']} | Due Date: {task['due_date']} [{status}]")
 
 def mark_complete(id):
     tasks = load_tasks()
@@ -91,6 +97,13 @@ def delete_tasks(id):
             return
     print("Task not found.")
 
+def date_validation(due_date):
+    try:
+        datetime.strptime(due_date, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+            
 
 
 main()
